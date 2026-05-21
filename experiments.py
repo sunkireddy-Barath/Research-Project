@@ -371,7 +371,7 @@ def _print_summary(acc: dict, fpr: dict, latencies: dict, overhead: dict):
 # Entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
-def main():
+def main(skip_train: bool = False):
     print("\n" + "="*64)
     print("  Self-Healing Blockchain IDS — Full Experiment Suite")
     print("  IEEE Research Paper Evaluation")
@@ -383,8 +383,14 @@ def main():
     sid = StaticAnomalyIDS()
     nid = NoResponseIDS()
 
-    # Run experiments in order (fw must train first)
-    e1 = exp1_training(fw)
+    if skip_train and os.path.exists(config.MODEL_PATH):
+        fw.load_model(config.MODEL_PATH)
+        print(f"  Loaded existing weights from {config.MODEL_PATH}")
+        e1 = {"rewards_raw": np.array([0.0]), "rewards_smooth": np.array([0.0]),
+              "accuracy_raw": np.array([0.0]), "accuracy_smooth": np.array([0.0]),
+              "epsilons": np.array([config.EPSILON_MIN])}
+    else:
+        e1 = exp1_training(fw)
     e2 = exp2_detection(fw, rid, sid, nid)
     e3 = exp3_fpr(fw, rid, sid)
     e4 = exp4_latency(fw)
