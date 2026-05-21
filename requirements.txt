@@ -1,0 +1,7 @@
+# Self-Healing Blockchain Security Framework
+# Python 3.8+ required
+#
+# Install:  pip install -r requirements.txt
+
+numpy>=1.24.0
+matplotlib>=3.7.0
