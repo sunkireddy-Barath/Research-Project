@@ -81,12 +81,12 @@ def load(path: str = config.EXP_DATA_PATH) -> np.lib.npyio.NpzFile:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def fig0_overview(d):
-    fig = plt.figure(figsize=(14, 9))
+    fig = plt.figure(figsize=(14, 10))
     fig.suptitle(
         "Self-Healing Blockchain Security Framework — Results Overview",
-        fontweight="bold", fontsize=14,
+        fontweight="bold", fontsize=14, y=0.98,
     )
-    gs = GridSpec(2, 2, figure=fig, hspace=0.44, wspace=0.30)
+    gs = GridSpec(2, 2, figure=fig, hspace=0.55, wspace=0.32)
 
     # (a) Reward convergence
     ax1  = fig.add_subplot(gs[0, 0])
@@ -190,7 +190,8 @@ def fig1_learning_curve(d):
     ax2b.tick_params(axis="y", labelcolor="#888")
     ax2b.set_ylim(0, 1.05)
 
-    lines  = ax2.get_lines()  + ax2b.get_lines()
+    all_lines = ax2.get_lines() + ax2b.get_lines()
+    lines  = [l for l in all_lines if not l.get_label().startswith("_")]
     labels = [l.get_label() for l in lines]
     ax2.legend(lines, labels, loc="lower right")
     ax2.set_title("(b) Detection Accuracy and ε Decay vs Episodes")
@@ -208,7 +209,7 @@ def fig2_detection(d):
     x       = np.arange(len(attacks))
     w       = 0.20
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(14, 6))
     fig.suptitle("Fig. 2 — Per-Attack Detection Accuracy Comparison", fontweight="bold")
 
     groups = [
@@ -226,17 +227,19 @@ def fig2_detection(d):
             h = rect.get_height()
             ax.annotate(f"{h:.0%}",
                         xy=(rect.get_x() + rect.get_width()/2, h),
-                        xytext=(0, 2), textcoords="offset points",
-                        ha="center", va="bottom", fontsize=7)
+                        xytext=(0, 3), textcoords="offset points",
+                        ha="center", va="bottom", fontsize=6.5,
+                        rotation=90)
 
     ax.set_ylabel("Detection Accuracy")
     ax.set_xlabel("Attack Type")
     ax.set_xticks(x)
     ax.set_xticklabels(attacks, rotation=20, ha="right")
-    ax.set_ylim(0, 1.18)
+    ax.set_ylim(0, 1.30)
     ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1))
     ax.legend(loc="upper left", ncol=2)
     ax.set_title("Detection accuracy across all attack types and IDS systems")
+    plt.tight_layout(rect=[0, 0, 1, 0.94])
 
     _save(fig, "fig2_detection_accuracy.png")
 
@@ -389,8 +392,9 @@ def fig7_overhead(d):
     ]
     colors = [C["proposed"], C["rule_based"], C["static_ml"]]
 
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(7, 5))
     fig.suptitle("Fig. 7 — Computational Overhead per Decision Step", fontweight="bold")
+    fig.subplots_adjust(top=0.80)
 
     bars = ax.bar(labels, values, color=colors, alpha=0.85, edgecolor="white", width=0.5)
     for bar in bars:
@@ -399,9 +403,9 @@ def fig7_overhead(d):
                 f"{h:.4f} ms", ha="center", va="bottom", fontsize=10)
 
     ax.set_ylabel("Step Time (ms)")
+    ax.set_xlabel("Median of 5 runs × 100 steps on commodity hardware")
     ax.set_title(
-        "Wall-clock time per detection + decision + response step\n"
-        "(median of 5 runs × 100 steps on commodity hardware)"
+        "Wall-clock time per detection + decision + response step"
     )
 
     _save(fig, "fig7_overhead.png")
